@@ -42,7 +42,7 @@ Instead, follow the “Existing Vnet variation” section below which will help 
 
 ## Deployment steps:
 1. Use this link to deploy the ARM template  
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-storage-av-automation%2Fmain%2FARM_template%2FAntivirusAutomationForStorageTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgulopez%2Fazure-storage-av-automation%2Fmain%2FARM_template%2FAntivirusAutomationForStorageTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
