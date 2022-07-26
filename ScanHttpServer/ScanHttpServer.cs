@@ -53,6 +53,8 @@ namespace ScanHttpServer
                 return;
             };
 
+            string blobname = request.QueryString["blobname"];
+            Log.Information("blobname: {fileName}", blobname);
             var scanner = new WindowsDefenderScanner();
             var parser = MultipartFormDataParser.Parse(request.InputStream);
             var file = parser.Files.First();

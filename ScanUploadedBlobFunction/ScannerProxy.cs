@@ -14,7 +14,8 @@ namespace ScanUploadedBlobFunction
         private string hostIp { get; set; }
         private HttpClient client;
         private ILogger log { get; }
-
+        private const string TARGET_CONTAINER_NAME = "targetContainerName";
+        private const string DEFENDER_STORAGE = "windefenderstorage";
         public ScannerProxy(ILogger log, string hostIp)
         {
             var handler = new HttpClientHandler();
@@ -31,7 +32,11 @@ namespace ScanUploadedBlobFunction
 
         public ScanResults Scan(Stream blob, string blobName)
         {
-            string url = "https://" + hostIp + "/scan";
+            string srcContainerName = Environment.GetEnvironmentVariable(TARGET_CONTAINER_NAME);
+            string connectionString = Environment.GetEnvironmentVariable(DEFENDER_STORAGE);
+           // var srcContainer = new BlobContainerClient(connectionString, srcContainerName);
+
+            string url = String.Format("https://" + hostIp + "/scan?blobname={0}&ContainerName={1}&connectionString={2}", blobName, srcContainerName, connectionString);
             var form = CreateMultiPartForm(blob, blobName);
             log.LogInformation($"Posting request to {url}");
             var response = client.PostAsync(url, form).Result;
