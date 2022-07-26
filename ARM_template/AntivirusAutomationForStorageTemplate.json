@@ -64,7 +64,7 @@
         },
         "VMSize": {
             "type": "string",
-            "defaultValue": "Standard_B1ms",
+            "defaultValue": "Standard_B4ms",
             "metadata": {
                 "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
             }
