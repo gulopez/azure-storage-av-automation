@@ -11,13 +11,14 @@
         },
         "NameOfTheResourceGroupTheTargetStorageAccountBelongsTo": {
             "type": "string",
-            "defaultValue": "[resourceGroup().name]",
+            "defaultValue": "cxdefenderstdemo",
             "metadata": {
                 "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in."
             }
         },
         "NameOfTargetStorageAccount": {
             "type": "string",
+            "defaultValue": "stagingcxdefenderdemo",
             "metadata": {
                 "description": "The name of the Storage Account that should be scanned."
             }
@@ -90,7 +91,7 @@
         },
         "ScanHttpServerZipURL": {
             "type": "string",
-            "defaultValue": "https://github.com/Azure/azure-storage-av-automation/releases/latest/download/ScanHttpServer.zip",
+            "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanHttpServer.zip",
             "metadata": {
                 "description": "URL of the zipped Function Code, default value points to the latest build."
             }
@@ -104,7 +105,7 @@
         },
         "VMInitScriptURL": {
             "type": "string",
-            "defaultValue": "https://github.com/Azure/azure-storage-av-automation/releases/latest/download/VMInit.ps1",
+            "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/VMInit.ps1",
             "metadata": {
                 "description": "URL of the VMInit.ps1 script, default value points to the latest build."
             }
@@ -122,7 +123,7 @@
         "functionSubnetName": "functionSubnet",
         "functionWorkerRuntime": "dotnet",
         "hostStorageAccountSecretName": "hostStorageConnectionString",
-        "keyVaultName": "[concat('keyvault', variables('uniqueStringSuffix'))]",
+        "keyVaultName": "[concat('kvacx', variables('uniqueStringSuffix'))]",
         "keyVaultSkuName": "Standard",
         "loganalyticsworkspace": "[concat('logworkspace', variables('uniqueStringSuffix'))]",
         "networkSecurityGroupName": "[concat('nsg', variables('uniqueStringSuffix'))]",
