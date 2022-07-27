@@ -98,7 +98,7 @@
         },
         "ScanUploadedBlobFunctionZipURL": {
             "type": "string",
-            "defaultValue": "https://github.com/Azure/azure-storage-av-automation/releases/latest/download/ScanUploadedBlobFunction.zip",
+            "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanUploadedBlobFunction.zip",
             "metadata": {
                 "description": "URL of the source code of the Http Server That will run on the VM, default value points to the latest build."
             }
