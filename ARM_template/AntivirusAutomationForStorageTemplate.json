@@ -1,116 +1,130 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {
-        "SubscriptionIDOfTheTargetStorageAccount": {
-            "type": "string",
-            "defaultValue": "[subscription().subscriptionId]",
-            "metadata": {
-                "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in."
-            }
-        },
-        "NameOfTheResourceGroupTheTargetStorageAccountBelongsTo": {
-            "type": "string",
-            "defaultValue": "cxdefenderstdemo",
-            "metadata": {
-                "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in."
-            }
-        },
-        "NameOfTargetStorageAccount": {
-            "type": "string",
-            "defaultValue": "stagingcxdefenderdemo",
-            "metadata": {
-                "description": "The name of the Storage Account that should be scanned."
-            }
-        },
-        "NameOfTargetContainer": {
-            "type": "string",
-            "defaultValue": "new-files",
-            "metadata": {
-                "description": "The name of the container that should be scanned. This field expects the name of an existing container in your target Storage Account."
-            }
-        },
-        "cleanContainerName": {
-            "type": "string",
-            "defaultValue": "clean-files",
-            "metadata": {
-                "description": "The Container name to transfer clean scanned blobs to, can be new or existing."
-            }
-        },
-        "quarantineContainerName": {
-            "type": "string",
-            "defaultValue": "quarantine-files",
-            "metadata": {
-                "description": "The Container name to transfer files that contain malware to, can be new or existing."
-            }
-        },
-        "appServicePlanSKU": {
-            "type": "string",
-            "defaultValue": "S1",
-            "allowedValues":[
-                "S1",
-                "S2",
-                "S3",
-                "P1",
-                "P2",
-                "P3",
-                "P1V2",
-                "P2V2",
-                "P3V2"
-            ],
-            "metadata":{
-                "description": "Choose the right App Service Plan to support your needs. The App Service Plan affects the throughput - the amount of data that can be scanned at a certain time. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
-            }
-        },
-        "VMSize": {
-            "type": "string",
-            "defaultValue": "Standard_B4ms",
-            "metadata": {
-                "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
-            }
-        },
-        "VMAdminUsername": {
-            "type": "string"
-        },
-        "VMAdminPassword": {
-            "type": "securestring"
-        },
-        "addPublicIPToVM": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint makes the VM less secure."
-            }
-        },
-        "addAppInsightsAndAlerts": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Specifies whether App Insights, Log Analytics Workspace and alerts will be included in this deployment."
-            }
-        },
-        "ScanHttpServerZipURL": {
-            "type": "string",
-            "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanHttpServer.zip",
-            "metadata": {
-                "description": "URL of the zipped Function Code, default value points to the latest build."
-            }
-        },
-        "ScanUploadedBlobFunctionZipURL": {
-            "type": "string",
-            "defaultValue": "https://github.com/Azure/azure-storage-av-automation/releases/latest/download/ScanUploadedBlobFunction.zip",
-            "metadata": {
-                "description": "URL of the source code of the Http Server That will run on the VM, default value points to the latest build."
-            }
-        },
-        "VMInitScriptURL": {
-            "type": "string",
-            "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/VMInit.ps1",
-            "metadata": {
-                "description": "URL of the VMInit.ps1 script, default value points to the latest build."
-            }
-        }
+  "parameters": {
+    "SubscriptionIDOfTheTargetStorageAccount": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in."
+      }
     },
+    "NameOfTheResourceGroupTheTargetStorageAccountBelongsTo": {
+      "type": "string",
+      "defaultValue": "cxdefenderstdemo",
+      "metadata": {
+        "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in."
+      }
+    },
+    "NameOfTargetStorageAccount": {
+      "type": "string",
+      "defaultValue": "stagingcxdefenderdemo",
+      "metadata": {
+        "description": "The name of the Storage Account that should be scanned."
+      }
+    },
+    "NameOfTargetContainer": {
+      "type": "string",
+      "defaultValue": "new-files",
+      "metadata": {
+        "description": "The name of the container that should be scanned. This field expects the name of an existing container in your target Storage Account."
+      }
+    },
+    "cleanContainerName": {
+      "type": "string",
+      "defaultValue": "clean-files",
+      "metadata": {
+        "description": "The Container name to transfer clean scanned blobs to, can be new or existing."
+      }
+    },
+    "quarantineContainerName": {
+      "type": "string",
+      "defaultValue": "quarantine-files",
+      "metadata": {
+        "description": "The Container name to transfer files that contain malware to, can be new or existing."
+      }
+    },
+    "appServicePlanSKU": {
+      "type": "string",
+      "defaultValue": "S1",
+      "allowedValues": [
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P1V2",
+        "P2V2",
+        "P3V2"
+      ],
+      "metadata": {
+        "description": "Choose the right App Service Plan to support your needs. The App Service Plan affects the throughput - the amount of data that can be scanned at a certain time. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
+      }
+    },
+    "VMSize": {
+      "type": "string",
+      "defaultValue": "Standard_B4ms",
+      "metadata": {
+        "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
+      }
+    },
+    "VMAdminUsername": {
+      "type": "string"
+    },
+    "VMAdminPassword": {
+      "type": "securestring"
+    },
+    "addPublicIPToVM": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint makes the VM less secure."
+      }
+    },
+    "addAppInsightsAndAlerts": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether App Insights, Log Analytics Workspace and alerts will be included in this deployment."
+      }
+    },
+    "ScanHttpServerZipURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanHttpServer.zip",
+      "metadata": {
+        "description": "URL of the zipped Function Code, default value points to the latest build."
+      }
+    },
+    "ScanUploadedBlobFunctionZipURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/Azure/azure-storage-av-automation/releases/latest/download/ScanUploadedBlobFunction.zip",
+      "metadata": {
+        "description": "URL of the source code of the Http Server That will run on the VM, default value points to the latest build."
+      }
+    },
+    "VMInitScriptURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/VMInit.ps1",
+      "metadata": {
+        "description": "URL of the VMInit.ps1 script, default value points to the latest build."
+      }
+    },
+    "StorageEndpointsuffix ": {
+      "type": "string",
+      "defaultValue": "blob.core.windows.net",
+      "metadata": {
+        "description": "For Public cloud use blob.core.windows.net but for Azure Government use blob.core.usgovcloudapi.net."
+      }
+    },
+    "SASdurationhours": {
+      "type": "string",
+      "defaultValue": "2",
+      "metadata": {
+        "description": "SAS token expiration hours for azcopy to download each file."
+      }
+    }
+  },
     "variables": {
         "hostStorageAccountType": "Standard_LRS",
         "uniqueStringSuffix": "[uniqueString(parameters('NameOfTargetStorageAccount'), parameters('NameOfTargetContainer'))]",
@@ -431,23 +445,25 @@
                         "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), variables('targetStorageAccountSecretName'))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', variables('VMName'))]"
                     ],
-                    "properties": {
-                        "AzureWebJobsStorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
-                        "cleanContainerName": "[parameters('cleanContainerName')]",
-                        "FUNCTIONS_EXTENSION_VERSION": "~3",
-                        "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
-                        "malwareContainerName": "[parameters('quarantineContainerName')]",
-                        "PROJECT": "LocalAntiMalware.csproj",
-                        "targetContainerName": "[parameters('NameOfTargetContainer')]",
-                        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
-                        "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
-                        "WEBSITE_NODE_DEFAULT_VERSION": "~10",
-                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
-                        "windowsdefender_host": "[reference(variables('VMNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
-                        "windowsdefender_port": "[variables('communicationPort')]",
-                        "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]"
-                    }
+                  "properties": {
+                    "AzureWebJobsStorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
+                    "cleanContainerName": "[parameters('cleanContainerName')]",
+                    "FUNCTIONS_EXTENSION_VERSION": "~3",
+                    "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
+                    "malwareContainerName": "[parameters('quarantineContainerName')]",
+                    "PROJECT": "LocalAntiMalware.csproj",
+                    "targetContainerName": "[parameters('NameOfTargetContainer')]",
+                    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
+                    "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+                    "WEBSITE_NODE_DEFAULT_VERSION": "~10",
+                    "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
+                    "windowsdefender_host": "[reference(variables('VMNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
+                    "windowsdefender_port": "[variables('communicationPort')]",
+                    "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
+                    "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]",
+                    "storageendpointsuffix ": "[parameters('StorageEndpointsuffix ')]",
+                    "sasdurationhours": "[parameters('SASdurationhours')]"
+                  }
                 }
             ]
         },

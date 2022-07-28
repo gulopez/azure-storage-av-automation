@@ -6,6 +6,9 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using Azure.Storage;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 
 namespace ScanUploadedBlobFunction
 {
@@ -16,6 +19,9 @@ namespace ScanUploadedBlobFunction
         private ILogger log { get; }
         private const string TARGET_CONTAINER_NAME = "targetContainerName";
         private const string DEFENDER_STORAGE = "windefenderstorage";
+        private const string STORAGE_ENDPOINT = "storageendpointsuffix";
+        private const string SAS_DURATION = "sasdurationhours";
+
         public ScannerProxy(ILogger log, string hostIp)
         {
             var handler = new HttpClientHandler();
@@ -34,12 +40,70 @@ namespace ScanUploadedBlobFunction
         {
             string srcContainerName = Environment.GetEnvironmentVariable(TARGET_CONTAINER_NAME);
             string connectionString = Environment.GetEnvironmentVariable(DEFENDER_STORAGE);
-           // var srcContainer = new BlobContainerClient(connectionString, srcContainerName);
+            string storageendpointsuffix = Environment.GetEnvironmentVariable(STORAGE_ENDPOINT);
+            string sasDuration = Environment.GetEnvironmentVariable(SAS_DURATION);
+            int SASTokenDurationHours = Convert.ToInt32(sasDuration);
 
-            string url = String.Format("https://" + hostIp + "/scan?blobname={0}&ContainerName={1}&connectionString={2}", blobName, srcContainerName, connectionString);
-            var form = CreateMultiPartForm(blob, blobName);
+            string[] accountdetails = connectionString.Split(';');
+            string[] accountnameinfo = accountdetails[1].Split('=');
+            string accountname = accountnameinfo[1];
+            string[] accountkeyinfo =  accountdetails[2].Split('=');
+            string accountkey = accountkeyinfo[1];
+
+            log.LogInformation($"accountname: {accountname}");
+            log.LogInformation($"accountkey {accountkey}");
+
+            //Generate SAS Token
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference(srcContainerName);
+            SharedAccessBlobPermissions permission = SharedAccessBlobPermissions.Read;
+            TimeSpan clockSkew = TimeSpan.FromMilliseconds(1);
+            TimeSpan accessDuration = TimeSpan.FromHours(SASTokenDurationHours);
+
+            var blobSAS = new SharedAccessBlobPolicy
+            {
+                SharedAccessStartTime = DateTime.UtcNow.Subtract(clockSkew),
+                SharedAccessExpiryTime = DateTime.UtcNow.Add(accessDuration) + clockSkew,
+                Permissions = permission
+            };
+
+            CloudBlockBlob blob1 = container.GetBlockBlobReference(blobName);
+            string sasToken = blob1.GetSharedAccessSignature(blobSAS);
+                    
+
+            log.LogInformation($"sasToken {sasToken}");
+            //Encode
+            var tokenBytes = Encoding.UTF8.GetBytes(sasToken);
+            string encodedsas = Convert.ToBase64String(tokenBytes);
+            log.LogInformation($"sasToken encoded: {encodedsas}");
+            
+            //Decode
+            var base64EncodedSASBytes = Convert.FromBase64String(encodedsas);
+            var decodedSas = Encoding.UTF8.GetString(base64EncodedSASBytes);
+            log.LogInformation($"sasToken decoded {decodedSas}");
+
+            //Encode
+            log.LogInformation($"storageendpointsuffix: {storageendpointsuffix}");
+            var endpointBytes = Encoding.UTF8.GetBytes(storageendpointsuffix);
+            string encodedendpoint = Convert.ToBase64String(endpointBytes);
+            log.LogInformation($"endpoint sufix encoded {encodedendpoint}");
+
+            //Decode
+            var base64EncodedEndpointBytes = Convert.FromBase64String(encodedendpoint);
+            var decodedEndpoint = Encoding.UTF8.GetString(base64EncodedEndpointBytes);
+            log.LogInformation($"sasToken decoded {decodedEndpoint}");
+
+            string url = String.Format("https://" + hostIp + "/scan?blobname={0}&ContainerName={1}&sastoken={2}&accountname={3}&storagesuffix={4}", blobName, srcContainerName, encodedsas, accountname, encodedendpoint);
+            log.LogInformation($"url {url}");
+
+
+            //  var form = CreateMultiPartForm(blob, blobName);
             log.LogInformation($"Posting request to {url}");
-            var response = client.PostAsync(url, form).Result;
+            var response = client.GetAsync(url).Result;
+
+            log.LogInformation($"Returning from scan");
+
             string stringContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
             if (!response.IsSuccessStatusCode)

@@ -9,6 +9,8 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq;
+using System.Text;
+using System.Diagnostics;
 
 namespace ScanHttpServer
 {
@@ -61,67 +63,100 @@ namespace ScanHttpServer
                 string ContainerName = request.QueryString["ContainerName"];
                 Log.Information("ContainerName: {ContainerName}", ContainerName);
 
-                string connectionString = request.QueryString["connectionString"];
-                Log.Information("connectionString: {connectionString}", connectionString);
+                string accountname = request.QueryString["accountname"];
+                Log.Information("accountname: {accountname}", accountname);
+
+                string storagesuffixencoded = request.QueryString["storagesuffix"];
+                Log.Information("storagesuffix: {storagesuffix}", storagesuffixencoded);
+
+                //Decode
+                var base64EncodedEndpointBytes = Convert.FromBase64String(storagesuffixencoded);
+                var decodedEndpoint = Encoding.UTF8.GetString(base64EncodedEndpointBytes);
+                Log.Information($"sasToken decoded {decodedEndpoint}");
+
+
+                string sastokenencoded = request.QueryString["sastoken"];
+                Log.Information("sastoken: {sastoken}", sastokenencoded);
+
+                //Decode
+                var base64EncodedSASBytes = Convert.FromBase64String(sastokenencoded);
+                var decodedSas = Encoding.UTF8.GetString(base64EncodedSASBytes);
+                Log.Information($"sasToken decoded {decodedSas}");
+
+                string sourceurl = string.Format("https://{0}.{1}/{2}/{3}{4}", accountname, decodedEndpoint, ContainerName, blobname, decodedSas);
+                Log.Information("Source URL: {sourceurl}", sourceurl);
+
+                string tempFileName = Path.GetTempFileName();
+                Log.Information("Generate a Temp File : {tempFileName}", tempFileName);
+
+                string azcommand = string.Format("azcopy copy {0} {1} --preserve-smb-permissions=false --preserve-smb-info=false", sourceurl, tempFileName);
+                Log.Information("Run Az Copy : {azcommand}", azcommand);
+
+                var AzCopyProcess = new Process();
+                AzCopyProcess.StartInfo.UseShellExecute = false;
+                AzCopyProcess.StartInfo.RedirectStandardOutput = true;
+                AzCopyProcess.StartInfo.FileName = "azcopy.exe";
+                //pass storage account name, container and the key
+
+                string arguments = string.Format(@"copy ""{0}""  ""{1}""", sourceurl, tempFileName);
+
+                AzCopyProcess.StartInfo.Arguments = arguments;
+
+                Log.Information("Starting AzCopy");
+                AzCopyProcess.Start();
+
+                //StreamWriter stdOut = new StreamWriter(Console.OpenStandardOutput());
+                //stdOut.AutoFlush = true;
+                //Console.Write(stdOut);
+                //var output = AzCopyProcess.StandardOutput.ReadToEnd();
+
+                AzCopyProcess.WaitForExit();
+                Log.Information("AzCopy completed");
+
+                var scanner = new WindowsDefenderScanner();
+                Log.Information("Scanning file");
+                var result = scanner.Scan(tempFileName);
+
+                if (result.isError)
+                {
+                    Log.Error("Error during the scanning Error message:{errorMessage}", result.errorMessage);
+
+                    var data = new
+                    {
+                        ErrorMessage = result.errorMessage,
+                    };
+
+                    SendResponse(response, HttpStatusCode.InternalServerError, data);
+                    return;
+                }
+
+                var responseData = new
+                {
+                    FileName = blobname,
+                    isThreat = result.isThreat,
+                    ThreatType = result.threatType
+                };
+                Log.Information("Sending response");
+                SendResponse(response, HttpStatusCode.OK, responseData);
+
+                try
+                {
+                    Log.Information("Deleting Local File");
+                    File.Delete(tempFileName);
+                }
+                catch (Exception e)
+                {
+                        Log.Error(e, "Exception caught when trying to delete temp file:{tempFileName}.", tempFileName);
+                }
 
             }
             catch (Exception ex)
             {
                 Log.Information("Exception: {Message}", ex.Message);
-            }
-
-            var scanner = new WindowsDefenderScanner();
-
-            var parser = MultipartFormDataParser.Parse(request.InputStream);
+            }          
 
 
-            //var file = parser.Files.First();
-            //Log.Information("filename: {fileName}", file.FileName);
-            //string tempFileName = FileUtilities.SaveToTempFile(file.Data);
-            //if (tempFileName == null)
-            //{
-            //    Log.Error("Can't save the file received in the request");
-            //    return;
-            //}
-
-            //var result = scanner.Scan(tempFileName);
-
-            //if(result.isError)
-            //{
-            //    Log.Error("Error during the scanning Error message:{errorMessage}", result.errorMessage);
-
-            //    var data = new
-            //    {
-            //        ErrorMessage = result.errorMessage,
-            //    };
-
-            //    SendResponse(response, HttpStatusCode.InternalServerError, data);
-            //    return;
-            //}
-
-            //var responseData = new
-            //{
-            //    FileName = file.FileName,
-            //    isThreat = result.isThreat,
-            //    ThreatType = result.threatType
-            //};
-
-
-            var responseData = new
-            {
-                FileName = "Mockup file",
-                isThreat = false,
-                ThreatType = "mock up type"
-            };
-            SendResponse(response, HttpStatusCode.OK, responseData);
-
-            try{
-               // File.Delete(tempFileName);
-            }
-            catch (Exception e)
-            {
-            //    Log.Error(e, "Exception caught when trying to delete temp file:{tempFileName}.", tempFileName);
-            }
+          
         }
 
         private static void SendResponse(

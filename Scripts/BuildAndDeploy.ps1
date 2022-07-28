@@ -12,15 +12,59 @@ param (
     $ArmTemplatFile = "$PSScriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json"
 )
 
-$vmPassword = ConvertTo-SecureString $vmPassword -AsPlainText -Force
 
-$ScanHttpServerRoot = "$PSScriptRoot\..\ScanHttpServer"
+$deploymentResourceGroupName ="defDemoRG9"
+$deploymentResourceGroupLocation ="eastus"
+$targetContainerName="new-files"
+$targetStorageAccountName="stagingcxdefenderdemo"
+$targetResourceGroup="cxdefenderstdemo"
+$subscriptionID ="ca8af7e5-0c5e-4d5d-bdbf-07e2f1ba6ff0"
+
+
+$SASdurationhours="2"
+$StorageEndpointsuffix = "blob.core.windows.net"
+$vmUserName ="gulopez"
+
+$vmPassword = Read-Host -Prompt "Enter password" -AsSecureString 
+#$vmPassword = ConvertTo-SecureString $vmPassword -AsPlainText -Force
+
+$sourceCodeContainerName ="source"
+$sourceCodeStorageAccountName = "defendersourcestacc"
+
+
+#cd C:\Gustavo\Projects\Repos\azure-storage-av-automation-gulopez\Scripts
+
+$scriptRoot = Get-Location
+
+
+$ArmTemplatFile = "$scriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json"
+
+
+
+
+
+
+
+
+#$relativePath = Get-Item "$scriptRoot\..\ScanHttpServer" | Resolve-Path -Relative
+#$ScanHttpServerRoot = $relativePath 
+
+$ScanHttpServerRoot = "..\ScanHttpServer"
+
+
 $ScanHttpServerZipPath = "$ScanHttpServerRoot\ScanHttpServer.Zip"
-
 $VMInitScriptPath = "$ScanHttpServerRoot\VMInit.ps1"
-
-$ScanUploadedBlobRoot = "$PSScriptRoot\..\ScanUploadedBlobFunction"
+$ScanUploadedBlobRoot = "..\ScanUploadedBlobFunction"
 $ScanUploadedBlobZipPath = "$ScanUploadedBlobRoot\ScanUploadedBlobFunction.zip"
+
+#az cloud set --name AzureUSGovernment
+#az account list-locations
+
+#az cloud list
+#az cloud set --name AzureUSGovernment
+az cloud set --name AzureCloud
+
+
 
 az login
 
@@ -30,7 +74,7 @@ dotnet publish $ScanHttpServerRoot\ScanHttpServer.csproj -c Release -o $ScanHttp
 
 Write-Host Zip ScanHttpServer
 $compress = @{
-    Path            = "$ScanHttpServerRoot\out\*", "$ScanHttpServerRoot\runLoop.ps1"
+    Path            = "$ScanHttpServerRoot\out\*", "$ScanHttpServerRoot\runLoop.ps1",  "$ScanHttpServerRoot\azcopy.exe"
     DestinationPath = $ScanHttpServerZipPath
 }
 Compress-Archive @compress -Update
@@ -73,13 +117,13 @@ az storage blob upload `
     --name $ScanUploadedBlobFubctionBlobName `
     --container-name $sourceCodeContainerName `
     --account-name $sourceCodeStorageAccountName `
-    --subscription $subscriptionID `
+    --subscription $subscriptionID 
 
 $ScanUploadedBlobFubctionUrl = az storage blob url `
     --name $ScanUploadedBlobFubctionBlobName `
     --container-name $sourceCodeContainerName `
     --account-name $sourceCodeStorageAccountName `
-    --subscription $subscriptionID `
+    --subscription $subscriptionID 
 
 $VMInitScriptBlobName = "VMInit.ps1"
 az storage blob upload `
@@ -87,13 +131,20 @@ az storage blob upload `
     --name $VMInitScriptBlobName `
     --container-name $sourceCodeContainerName `
     --account-name $sourceCodeStorageAccountName `
-    --subscription $subscriptionID `
+    --subscription $subscriptionID
     
 $VMInitScriptUrl = az storage blob url `
     --name $VMInitScriptBlobName `
     --container-name $sourceCodeContainerName `
     --account-name $sourceCodeStorageAccountName `
-    --subscription $subscriptionID `
+    --subscription $subscriptionID
+
+
+
+$ScanHttpServerUrl="https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanHttpServer.Zip"
+$ScanUploadedBlobFubctionUrl="https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanUploadedBlobFunction.zip"
+$VMInitScriptUrl = "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/VMInit.ps1"
+
 
 Write-Host $ScanHttpServerUrl
 Write-Host $ScanUploadedBlobFubctionUrl
@@ -117,4 +168,11 @@ az deployment group create `
     --parameters NameOfTheResourceGroupTheTargetStorageAccountBelongsTo=$targetResourceGroup `
     --parameters SubscriptionIDOfTheTargetStorageAccount=$subscriptionID `
     --parameters VMAdminUsername=$vmUserName `
-    --parameters VMAdminPassword=$vmPassword
+    --parameters VMAdminPassword=$vmPassword  `
+    --parameters StorageEndpointsuffix=$StorageEndpointsuffix  `
+    --parameters SASdurationhours=$SASdurationhours
+
+
+
+
+ #   az group delete --name $deploymentResourceGroupName --no-wait --yes

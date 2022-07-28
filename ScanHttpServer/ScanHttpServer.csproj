@@ -6,6 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="azcopy.exe" />
+    <None Remove="MicrosoftAzureStorageAzCopy_netcore_x64.msi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="azcopy.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HttpMultipartParser" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />

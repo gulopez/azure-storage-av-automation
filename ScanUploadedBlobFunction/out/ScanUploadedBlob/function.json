@@ -1,0 +1,15 @@
+{
+  "generatedBy": "Microsoft.NET.Sdk.Functions-3.0.11",
+  "configurationSource": "attributes",
+  "bindings": [
+    {
+      "type": "blobTrigger",
+      "connection": "windefenderstorage",
+      "path": "%targetContainerName%/{name}",
+      "name": "myBlob"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/ScanUploadedBlobFunction.dll",
+  "entryPoint": "ScanUploadedBlobFunction.ScanUploadedBlob.Run"
+}
