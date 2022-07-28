@@ -110,7 +110,7 @@
         "description": "URL of the VMInit.ps1 script, default value points to the latest build."
       }
     },
-    "StorageEndpointsuffix ": {
+    "StorageEndpointsuffix": {
       "type": "string",
       "defaultValue": "blob.core.windows.net",
       "metadata": {
