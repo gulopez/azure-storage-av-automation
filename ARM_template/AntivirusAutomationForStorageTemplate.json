@@ -127,7 +127,7 @@
   },
     "variables": {
         "hostStorageAccountType": "Standard_LRS",
-        "uniqueStringSuffix": "[uniqueString(parameters('NameOfTargetStorageAccount'), parameters('NameOfTargetContainer'))]",
+        "uniqueStringSuffix": "[uniqueString(parameters('NameOfTargetStorageAccount'),parameters('cleanContainerName'))]",
         "appServicePlanName": "[concat('appplan', variables('uniqueStringSuffix'))]",
         "communicationPort": "443",
         "computerName": "AntivirusVm",
