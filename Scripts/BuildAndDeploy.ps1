@@ -1,72 +1,64 @@
-param (
-    [Parameter(Mandatory=$true)][string] $sourceCodeContainerName,
-    [Parameter(Mandatory=$true)][string] $sourceCodeStorageAccountName,
-    [Parameter(Mandatory=$true)][string] $targetContainerName,
-    [Parameter(Mandatory=$true)][string] $targetStorageAccountName,
-    [Parameter(Mandatory=$true)][string] $targetResourceGroup,
-    [Parameter(Mandatory=$true)][string] $subscriptionID,
-    [Parameter(Mandatory=$true)][string] $deploymentResourceGroupName,
-    [Parameter(Mandatory=$true)][string] $deploymentResourceGroupLocation,
-    [Parameter(Mandatory=$true)][string] $vmUserName,
-    [Parameter(Mandatory=$true)][string] $vmPassword,
-    $ArmTemplatFile = "$PSScriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json"
-)
+#az cloud set --name AzureUSGovernment
+#az account list-locations
+
+#az cloud list
+az cloud set --name AzureUSGovernment
+#az cloud set --name AzureCloud
+
+az login
+
+#########################################################Creating Source Storage account############################################################
+$targetResourceGroup="defdemoRG"
+$targetStorageAccountName="stagdefdemo"
 
 
-$deploymentResourceGroupName ="defDemoRG9"
-$deploymentResourceGroupLocation ="eastus"
+#az account list-locations -o table
+$deploymentResourceGroupLocation ="usgovvirginia"
 $targetContainerName="new-files"
-$targetStorageAccountName="stagingcxdefenderdemo"
-$targetResourceGroup="cxdefenderstdemo"
-$subscriptionID ="ca8af7e5-0c5e-4d5d-bdbf-07e2f1ba6ff0"
+$targetCleanContainerName="clean-files"
+$targetQuarantineContainerName="quarantine-files"
+
+#$subscriptionID ="ca8af7e5-0c5e-4d5d-bdbf-07e2f1ba6ff0"
+$subscriptionID ="4906dee5-e195-4bbe-81c4-ffdd264e1dfd"
+
+az account set --subscription $subscriptionID
+az account show
+
+az group create `
+    --location $deploymentResourceGroupLocation `
+    --name $targetResourceGroup `
+    --subscription $subscriptionID
+
+az storage account create -n $targetStorageAccountName -g $targetResourceGroup -l $deploymentResourceGroupLocation --sku Standard_LRS
 
 
-$SASdurationhours="2"
-$StorageEndpointsuffix = "blob.core.windows.net"
-$vmUserName ="gulopez"
-
-$vmPassword = Read-Host -Prompt "Enter password" -AsSecureString 
-#$vmPassword = ConvertTo-SecureString $vmPassword -AsPlainText -Force
-
-$sourceCodeContainerName ="source"
-$sourceCodeStorageAccountName = "defendersourcestacc"
+az storage container create -n $targetContainerName --account-name $targetStorageAccountName  --public-access blob
+az storage container create -n $targetCleanContainerName --account-name $targetStorageAccountName  
+az storage container create -n $targetQuarantineContainerName --account-name $targetStorageAccountName  
 
 
-#cd C:\Gustavo\Projects\Repos\azure-storage-av-automation-gulopez\Scripts
+###############################################################################################
+
+
+# Change current path of this script location
+CD "C:\Gustavo\Projects\Repos\azure-storage-av-automation-gulopez\Scripts"
+$scriptRoot = Get-Location
+
+
+
+
 
 $scriptRoot = Get-Location
 
 
-$ArmTemplatFile = "$scriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json"
-
-
-
-
-
-
-
-
-#$relativePath = Get-Item "$scriptRoot\..\ScanHttpServer" | Resolve-Path -Relative
-#$ScanHttpServerRoot = $relativePath 
+#################### Build Solution ################################
 
 $ScanHttpServerRoot = "..\ScanHttpServer"
-
-
 $ScanHttpServerZipPath = "$ScanHttpServerRoot\ScanHttpServer.Zip"
 $VMInitScriptPath = "$ScanHttpServerRoot\VMInit.ps1"
 $ScanUploadedBlobRoot = "..\ScanUploadedBlobFunction"
 $ScanUploadedBlobZipPath = "$ScanUploadedBlobRoot\ScanUploadedBlobFunction.zip"
 
-#az cloud set --name AzureUSGovernment
-#az account list-locations
-
-#az cloud list
-#az cloud set --name AzureUSGovernment
-az cloud set --name AzureCloud
-
-
-
-az login
 
 #Build and Zip ScanHttpServer code 
 Write-Host Build ScanHttpServer
@@ -87,6 +79,15 @@ dotnet publish $ScanUploadedBlobRoot\ScanUploadedBlobFunction.csproj -c Release 
 Write-Host Zip ScanUploadedBlob code
 Compress-Archive -Path $ScanUploadedBlobRoot\out\* -DestinationPath $ScanUploadedBlobZipPath -Update
 Write-Host ScanUploadedBlob zipped successfully
+
+
+
+##########################  Upload Package to Storage Account ##############################
+
+
+$sourceCodeContainerName ="source"
+$sourceCodeStorageAccountName = "defendersourcestacc"
+
 
 # Uploading ScanHttpServer code 
 Write-Host Uploading Files
@@ -139,6 +140,14 @@ $VMInitScriptUrl = az storage blob url `
     --account-name $sourceCodeStorageAccountName `
     --subscription $subscriptionID
 
+Write-Host $ScanHttpServerUrl
+Write-Host $ScanUploadedBlobFubctionUrl
+Write-Host $VMInitScriptUrl
+
+###################################################################
+
+#############  Hardcoding the package links
+
 
 
 $ScanHttpServerUrl="https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/ScanHttpServer.Zip"
@@ -146,9 +155,21 @@ $ScanUploadedBlobFubctionUrl="https://github.com/gulopez/azure-storage-av-automa
 $VMInitScriptUrl = "https://github.com/gulopez/azure-storage-av-automation/releases/download/1.0/VMInit.ps1"
 
 
-Write-Host $ScanHttpServerUrl
-Write-Host $ScanUploadedBlobFubctionUrl
-Write-Host $VMInitScriptUrl
+#########################################################################
+
+
+$ArmTemplatFile = "$scriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json"
+
+#$relativePath = Get-Item "$scriptRoot\..\ScanHttpServer" | Resolve-Path -Relative
+#$ScanHttpServerRoot = $relativePath 
+
+$deploymentResourceGroupName ="defDemoRG2"
+$SASdurationhours="1"
+
+# for public cloud use blob.core.windows.net  for UsGov use blob.core.usgovcloudapi.net
+$StorageEndpointsuffix = "blob.core.usgovcloudapi.net"
+$vmUserName ="gulopez"
+$vmPassword = Read-Host -Prompt "Enter password" -AsSecureString 
 
 az group create `
     --location $deploymentResourceGroupLocation `
@@ -175,4 +196,4 @@ az deployment group create `
 
 
 
- #   az group delete --name $deploymentResourceGroupName --no-wait --yes
+az group delete --name $deploymentResourceGroupName --no-wait --yes

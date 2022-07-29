@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Web;
 
 namespace ScanHttpServer
 {
@@ -58,6 +59,7 @@ namespace ScanHttpServer
             try
             {
                 string blobname = request.QueryString["blobname"];
+                blobname = HttpUtility.UrlDecode(blobname);
                 Log.Information("blobname: {fileName}", blobname);
 
                 string ContainerName = request.QueryString["ContainerName"];

@@ -127,7 +127,7 @@
   },
     "variables": {
         "hostStorageAccountType": "Standard_LRS",
-        "uniqueStringSuffix": "[uniqueString(parameters('NameOfTargetStorageAccount'),parameters('cleanContainerName'))]",
+        "uniqueStringSuffix": "[uniqueString(resourceGroup().id, deployment().name)]",
         "appServicePlanName": "[concat('appplan', variables('uniqueStringSuffix'))]",
         "communicationPort": "443",
         "computerName": "AntivirusVm",
@@ -452,16 +452,14 @@
                     "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
                     "malwareContainerName": "[parameters('quarantineContainerName')]",
                     "PROJECT": "LocalAntiMalware.csproj",
-                    "targetContainerName": "[parameters('NameOfTargetContainer')]",
-                    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
-                    "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+                    "targetContainerName": "[parameters('NameOfTargetContainer')]",                    
                     "WEBSITE_NODE_DEFAULT_VERSION": "~10",
                     "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
                     "windowsdefender_host": "[reference(variables('VMNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
                     "windowsdefender_port": "[variables('communicationPort')]",
                     "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
                     "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]",
-                    "storageendpointsuffix ": "[parameters('StorageEndpointsuffix ')]",
+                    "storageendpointsuffix": "[parameters('StorageEndpointsuffix')]",
                     "sasdurationhours": "[parameters('SASdurationhours')]"
                   }
                 }

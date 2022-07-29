@@ -9,6 +9,7 @@ using System.Text;
 using Azure.Storage;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using System.Web;
 
 namespace ScanUploadedBlobFunction
 {
@@ -51,7 +52,7 @@ namespace ScanUploadedBlobFunction
             string accountkey = accountkeyinfo[1];
 
             log.LogInformation($"accountname: {accountname}");
-            log.LogInformation($"accountkey {accountkey}");
+           // log.LogInformation($"accountkey {accountkey}");
 
             //Generate SAS Token
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
@@ -72,29 +73,31 @@ namespace ScanUploadedBlobFunction
             string sasToken = blob1.GetSharedAccessSignature(blobSAS);
                     
 
-            log.LogInformation($"sasToken {sasToken}");
+           // log.LogInformation($"sasToken {sasToken}");
             //Encode
             var tokenBytes = Encoding.UTF8.GetBytes(sasToken);
             string encodedsas = Convert.ToBase64String(tokenBytes);
-            log.LogInformation($"sasToken encoded: {encodedsas}");
+            //log.LogInformation($"sasToken encoded: {encodedsas}");
             
             //Decode
             var base64EncodedSASBytes = Convert.FromBase64String(encodedsas);
             var decodedSas = Encoding.UTF8.GetString(base64EncodedSASBytes);
-            log.LogInformation($"sasToken decoded {decodedSas}");
+            //log.LogInformation($"sasToken decoded {decodedSas}");
 
             //Encode
             log.LogInformation($"storageendpointsuffix: {storageendpointsuffix}");
             var endpointBytes = Encoding.UTF8.GetBytes(storageendpointsuffix);
             string encodedendpoint = Convert.ToBase64String(endpointBytes);
-            log.LogInformation($"endpoint sufix encoded {encodedendpoint}");
+          //  log.LogInformation($"endpoint sufix encoded {encodedendpoint}");
 
             //Decode
             var base64EncodedEndpointBytes = Convert.FromBase64String(encodedendpoint);
             var decodedEndpoint = Encoding.UTF8.GetString(base64EncodedEndpointBytes);
             log.LogInformation($"sasToken decoded {decodedEndpoint}");
 
-            string url = String.Format("https://" + hostIp + "/scan?blobname={0}&ContainerName={1}&sastoken={2}&accountname={3}&storagesuffix={4}", blobName, srcContainerName, encodedsas, accountname, encodedendpoint);
+            string blobnameencoded = HttpUtility.UrlEncode(blobName);
+
+            string url = String.Format("https://" + hostIp + "/scan?blobname={0}&ContainerName={1}&sastoken={2}&accountname={3}&storagesuffix={4}", blobnameencoded, srcContainerName, encodedsas, accountname, encodedendpoint);
             log.LogInformation($"url {url}");
 
 
