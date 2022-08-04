@@ -112,14 +112,14 @@
     },
     "StorageEndpointsuffix": {
       "type": "string",
-      "defaultValue": "blob.core.windows.net",
+      "defaultValue": "core.usgovcloudapi.net",
       "metadata": {
         "description": "For Public cloud use blob.core.windows.net but for Azure Government use blob.core.usgovcloudapi.net."
       }
     },
     "SASdurationhours": {
       "type": "string",
-      "defaultValue": "2",
+      "defaultValue": "1",
       "metadata": {
         "description": "SAS token expiration hours for azcopy to download each file."
       }
@@ -506,9 +506,9 @@
                         "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]",
                         "[resourceId('Microsoft.Storage/storageAccounts', variables('functionHostStorageAccountName'))]"
                     ],
-                    "properties": {
-                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionHostStorageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functionHostStorageAccountName')),'2019-06-01').keys[0].value)]"
-                    }
+                  "properties": {
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionHostStorageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functionHostStorageAccountName')),'2019-06-01').keys[0].value,';EndpointSuffix=',parameters('StorageEndpointsuffix'))]"
+                  }
                 },
                 {
                     "type": "secrets",
@@ -517,9 +517,9 @@
                     "dependsOn": [
                         "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]"
                     ],
-                    "properties": {
-                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('NameOfTargetStorageAccount'), ';AccountKey=', listKeys(variables('targetStorageAccountResourceID'),'2015-05-01-preview').key1)]"
-                    }
+                  "properties": {
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('NameOfTargetStorageAccount'), ';AccountKey=', listKeys(variables('targetStorageAccountResourceID'),'2015-05-01-preview').key1,';EndpointSuffix=',parameters('StorageEndpointsuffix'))]"
+                  }
                 }
             ]
         },
