@@ -459,7 +459,7 @@
                     "windowsdefender_port": "[variables('communicationPort')]",
                     "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
                     "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]",
-                    "storageendpointsuffix": "[parameters('StorageEndpointsuffix')]",
+                    "storageendpointsuffix": "concat('blob.',[parameters('StorageEndpointsuffix'))]",
                     "sasdurationhours": "[parameters('SASdurationhours')]"
                   }
                 }
