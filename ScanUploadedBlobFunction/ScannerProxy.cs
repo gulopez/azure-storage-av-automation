@@ -51,7 +51,7 @@ namespace ScanUploadedBlobFunction
             string[] accountkeyinfo =  accountdetails[2].Split('=');
             string accountkey = accountkeyinfo[1];
 
-            log.LogInformation($"accountname: {accountname}");
+           // log.LogInformation($"accountname: {accountname}");
            // log.LogInformation($"accountkey {accountkey}");
 
             //Generate SAS Token
@@ -85,7 +85,7 @@ namespace ScanUploadedBlobFunction
             //log.LogInformation($"sasToken decoded {decodedSas}");
 
             //Encode
-            log.LogInformation($"storageendpointsuffix: {storageendpointsuffix}");
+           // log.LogInformation($"storageendpointsuffix: {storageendpointsuffix}");
             var endpointBytes = Encoding.UTF8.GetBytes(storageendpointsuffix);
             string encodedendpoint = Convert.ToBase64String(endpointBytes);
           //  log.LogInformation($"endpoint sufix encoded {encodedendpoint}");
@@ -93,16 +93,16 @@ namespace ScanUploadedBlobFunction
             //Decode
             var base64EncodedEndpointBytes = Convert.FromBase64String(encodedendpoint);
             var decodedEndpoint = Encoding.UTF8.GetString(base64EncodedEndpointBytes);
-            log.LogInformation($"sasToken decoded {decodedEndpoint}");
+           //log.LogInformation($"sasToken decoded {decodedEndpoint}");
 
             string blobnameencoded = HttpUtility.UrlEncode(blobName);
 
             string url = String.Format("https://" + hostIp + "/scan?blobname={0}&ContainerName={1}&sastoken={2}&accountname={3}&storagesuffix={4}", blobnameencoded, srcContainerName, encodedsas, accountname, encodedendpoint);
-            log.LogInformation($"url {url}");
+           // log.LogInformation($"url {url}");
 
 
             //  var form = CreateMultiPartForm(blob, blobName);
-            log.LogInformation($"Posting request to {url}");
+           // log.LogInformation($"Posting request to {url}");
             var response = client.GetAsync(url).Result;
 
             log.LogInformation($"Returning from scan");

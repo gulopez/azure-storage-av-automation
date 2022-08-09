@@ -29,22 +29,8 @@ namespace ScanHttpServer
             Log.Information("Raw URL: {requestRawUrl}", request.RawUrl);
             Log.Information("request.ContentType: {requestContentType}", request.ContentType);
 
-            //var requestTypeTranslation = new Dictionary<string, requestType>
-            //{
-            //    { "/scan", requestType.SCAN }
-            //};
+            ScanRequest(request, response);
 
-            //requestType type = requestTypeTranslation[request.RawUrl];
-
-            //switch (type)
-            //{
-            //    case requestType.SCAN:
-                    ScanRequest(request, response);
-            //        break;
-            //    default:
-            //        Log.Information("No valid request type");
-            //        break;
-            //}
             Log.Information("Done Handling Request {requestUrl}", request.Url);
         }
 
@@ -60,33 +46,32 @@ namespace ScanHttpServer
             {
                 string blobname = request.QueryString["blobname"];
                 blobname = HttpUtility.UrlDecode(blobname);
-                Log.Information("blobname: {fileName}", blobname);
+               //Log.Information("blobname: {fileName}", blobname);
 
                 string ContainerName = request.QueryString["ContainerName"];
-                Log.Information("ContainerName: {ContainerName}", ContainerName);
+               //Log.Information("ContainerName: {ContainerName}", ContainerName);
 
                 string accountname = request.QueryString["accountname"];
-                Log.Information("accountname: {accountname}", accountname);
+                //Log.Information("accountname: {accountname}", accountname);
 
                 string storagesuffixencoded = request.QueryString["storagesuffix"];
-                Log.Information("storagesuffix: {storagesuffix}", storagesuffixencoded);
+               // Log.Information("storagesuffix: {storagesuffix}", storagesuffixencoded);
 
                 //Decode
                 var base64EncodedEndpointBytes = Convert.FromBase64String(storagesuffixencoded);
                 var decodedEndpoint = Encoding.UTF8.GetString(base64EncodedEndpointBytes);
-                Log.Information($"sasToken decoded {decodedEndpoint}");
-
+               // Log.Information($"sasToken decoded {decodedEndpoint}");
 
                 string sastokenencoded = request.QueryString["sastoken"];
-                Log.Information("sastoken: {sastoken}", sastokenencoded);
+               // Log.Information("sastoken: {sastoken}", sastokenencoded);
 
                 //Decode
                 var base64EncodedSASBytes = Convert.FromBase64String(sastokenencoded);
                 var decodedSas = Encoding.UTF8.GetString(base64EncodedSASBytes);
-                Log.Information($"sasToken decoded {decodedSas}");
+               // Log.Information($"sasToken decoded {decodedSas}");
 
                 string sourceurl = string.Format("https://{0}.{1}/{2}/{3}{4}", accountname, decodedEndpoint, ContainerName, blobname, decodedSas);
-                Log.Information("Source URL: {sourceurl}", sourceurl);
+               // Log.Information("Source URL: {sourceurl}", sourceurl);
 
                 string tempFileName = Path.GetTempFileName();
                 Log.Information("Generate a Temp File : {tempFileName}", tempFileName);
@@ -106,12 +91,7 @@ namespace ScanHttpServer
 
                 Log.Information("Starting AzCopy");
                 AzCopyProcess.Start();
-
-                //StreamWriter stdOut = new StreamWriter(Console.OpenStandardOutput());
-                //stdOut.AutoFlush = true;
-                //Console.Write(stdOut);
-                //var output = AzCopyProcess.StandardOutput.ReadToEnd();
-
+           
                 AzCopyProcess.WaitForExit();
                 Log.Information("AzCopy completed");
 
@@ -155,9 +135,7 @@ namespace ScanHttpServer
             catch (Exception ex)
             {
                 Log.Information("Exception: {Message}", ex.Message);
-            }          
-
-
+            }  
           
         }
 
