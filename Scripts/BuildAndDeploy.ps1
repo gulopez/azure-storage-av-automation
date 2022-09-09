@@ -18,8 +18,8 @@ $targetContainerName="new-files"
 $targetCleanContainerName="clean-files"
 $targetQuarantineContainerName="quarantine-files"
 
-#$subscriptionID ="ca8af7e5-0c5e-4d5d-bdbf-07e2f1ba6ff0"
-$subscriptionID ="4906dee5-e195-4bbe-81c4-ffdd264e1dfd"
+
+$subscriptionID ="{SubscriptionID}"
 
 az account set --subscription $subscriptionID
 az account show
@@ -196,4 +196,4 @@ az deployment group create `
 
 
 
-az group delete --name $deploymentResourceGroupName --no-wait --yes
+# az group delete --name $deploymentResourceGroupName --no-wait --yes
