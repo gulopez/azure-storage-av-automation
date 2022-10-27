@@ -196,4 +196,4 @@ az deployment group create `
 
 
 
-az group delete --name $deploymentResourceGroupName --no-wait --yes
+# az group delete --name $deploymentResourceGroupName --no-wait --yes
