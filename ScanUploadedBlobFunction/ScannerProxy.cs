@@ -19,7 +19,7 @@ namespace ScanUploadedBlobFunction
         private HttpClient client;
         private ILogger log { get; }
         private const string TARGET_CONTAINER_NAME = "targetContainerName";
-        private const string DEFENDER_STORAGE = "windefendersourcestorage";
+        private const string DEFENDER_STORAGE = "defsourcestoracc";
         private const string STORAGE_ENDPOINT = "storageendpointsuffix";
         private const string SAS_DURATION = "sasdurationhours";
 
