@@ -18,10 +18,7 @@ namespace ScanUploadedBlobFunction
         private string hostIp { get; set; }
         private HttpClient client;
         private ILogger log { get; }
-        private const string TARGET_CONTAINER_NAME = "targetContainerName";
-        private const string DEFENDER_STORAGE = "defsourcestoracc";
-        private const string STORAGE_ENDPOINT = "storageendpointsuffix";
-        private const string SAS_DURATION = "sasdurationhours";
+
 
         public ScannerProxy(ILogger log, string hostIp)
         {
@@ -39,13 +36,13 @@ namespace ScanUploadedBlobFunction
 
         public ScanResults Scan(Stream blob, string blobName)
         {
-            string srcContainerName = Environment.GetEnvironmentVariable(TARGET_CONTAINER_NAME);
-            string connectionString = Environment.GetEnvironmentVariable(DEFENDER_STORAGE);
-            string storageendpointsuffix = Environment.GetEnvironmentVariable(STORAGE_ENDPOINT);
-            string sasDuration = Environment.GetEnvironmentVariable(SAS_DURATION);
+            string srcContainerName = Environment.GetEnvironmentVariable(ScanConstants.SOURCE_CONTAINER_NAME);
+            string sourceconnectionString = Environment.GetEnvironmentVariable(ScanConstants.SOURCE_DEFENDER_STORAGE);
+            string storageendpointsuffix = Environment.GetEnvironmentVariable(ScanConstants.STORAGE_ENDPOINT);
+            string sasDuration = Environment.GetEnvironmentVariable(ScanConstants.SAS_DURATION);
             int SASTokenDurationHours = Convert.ToInt32(sasDuration);
 
-            string[] accountdetails = connectionString.Split(';');
+            string[] accountdetails = sourceconnectionString.Split(';');
             string[] accountnameinfo = accountdetails[1].Split('=');
             string accountname = accountnameinfo[1];
             string[] accountkeyinfo =  accountdetails[2].Split('=');
@@ -55,7 +52,7 @@ namespace ScanUploadedBlobFunction
            // log.LogInformation($"accountkey {accountkey}");
 
             //Generate SAS Token
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(sourceconnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(srcContainerName);
             SharedAccessBlobPermissions permission = SharedAccessBlobPermissions.Read;

@@ -19,14 +19,14 @@ namespace ScanUploadedBlobFunction
 
         public void Start()
         {
-            string srcContainerName = Environment.GetEnvironmentVariable("targetContainerName");
+            string srcContainerName = Environment.GetEnvironmentVariable(ScanConstants.SOURCE_CONTAINER_NAME);
 
             if (scanResults.isThreat)
             {
                 log.LogInformation($"A malicious file was detected, file name: {scanResults.fileName}, threat type: {scanResults.threatType}");
                 try
                 {
-                    string malwareContainerName = Environment.GetEnvironmentVariable("malwareContainerName");
+                    string malwareContainerName = Environment.GetEnvironmentVariable(ScanConstants.MALWARE_CONTAINER_NAME);
                     MoveBlob(scanResults.fileName, srcContainerName, malwareContainerName, log).GetAwaiter().GetResult();
                     log.LogInformation("A malicious file was detected. It has been moved from the unscanned container to the quarantine container");
                 }
@@ -41,7 +41,7 @@ namespace ScanUploadedBlobFunction
             {
                 try
                 {
-                    string cleanContainerName = Environment.GetEnvironmentVariable("cleanContainerName");
+                    string cleanContainerName = Environment.GetEnvironmentVariable(ScanConstants.CLEAN_CONTAINER_NAME);
                     MoveBlob(scanResults.fileName, srcContainerName, cleanContainerName, log).GetAwaiter().GetResult();
                     log.LogInformation("The file is clean. It has been moved from the unscanned container to the clean container");
                 }
@@ -57,9 +57,13 @@ namespace ScanUploadedBlobFunction
         {
             //Note: if the srcBlob name already exist in the dest container it will be overwritten
             
-            var connectionString = Environment.GetEnvironmentVariable("windefenderstorage");
-            var srcContainer = new BlobContainerClient(connectionString, srcContainerName);
-            var destContainer = new BlobContainerClient(connectionString, destContainerName);
+            var sourceconnectionString = Environment.GetEnvironmentVariable(ScanConstants.SOURCE_DEFENDER_STORAGE);
+            var targetconnectionString = Environment.GetEnvironmentVariable(ScanConstants.TARGET_DEFENDER_STORAGE);
+
+            var srcContainer = new BlobContainerClient(sourceconnectionString, srcContainerName);
+
+
+            var destContainer = new BlobContainerClient(targetconnectionString, destContainerName);
             destContainer.CreateIfNotExists();
 
             var srcBlob = srcContainer.GetBlobClient(srcBlobName);

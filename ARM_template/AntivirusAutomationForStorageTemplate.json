@@ -44,7 +44,7 @@
         "description": "The name of the Storage Account that will stored the scanned files."
       }
     },
-    "NameOfTargetContainer": {
+    "NameOfSourceContainer": {
       "type": "string",
       "defaultValue": "new-files",
       "metadata": {
@@ -471,12 +471,12 @@
                   ],
                   "properties": {
                     "AzureWebJobsStorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
-                    "cleanContainerName": "[parameters('cleanContainerName')]",
                     "FUNCTIONS_EXTENSION_VERSION": "~3",
                     "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
+                    "sourceContainerName": "[parameters('NameOfSourceContainer')]",
+                    "cleanContainerName": "[parameters('cleanContainerName')]",
                     "malwareContainerName": "[parameters('quarantineContainerName')]",
                     "PROJECT": "LocalAntiMalware.csproj",
-                    "targetContainerName": "[parameters('NameOfTargetContainer')]",
                     "WEBSITE_NODE_DEFAULT_VERSION": "~10",
                     "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
                     "windowsdefender_host": "[reference(variables('VMNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
@@ -484,7 +484,7 @@
                     "defsourcestoracc": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('sourceStorageAccountSecretName')).secretUriWithVersion,')')]",
                     "deftargetstoracc": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
                     "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]",
-                    "storageendpointsuffix": "concat('blob.',[parameters('StorageEndpointsuffix'))]",
+                    "storageendpointsuffix": "[concat('blob.',parameters('StorageEndpointsuffix'))]",
                     "sasdurationhours": "[parameters('SASdurationhours')]"
                   }
                 }
