@@ -147,7 +147,7 @@
     },
     "ResourcesSuffix": {
       "type": "string",
-      "defaultValue": "[uniqueString(resourceGroup().id, deployment().name)]",
+      "defaultValue": "",
       "metadata": {
         "description": "Suffix that is going to be appended to each resource."
       }
