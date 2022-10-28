@@ -61,8 +61,6 @@ namespace ScanUploadedBlobFunction
             var targetconnectionString = Environment.GetEnvironmentVariable(ScanConstants.TARGET_DEFENDER_STORAGE);
 
             var srcContainer = new BlobContainerClient(sourceconnectionString, srcContainerName);
-
-
             var destContainer = new BlobContainerClient(targetconnectionString, destContainerName);
             destContainer.CreateIfNotExists();
 
@@ -72,10 +70,32 @@ namespace ScanUploadedBlobFunction
             if (await srcBlob.ExistsAsync())
             {
                 log.LogInformation("MoveBlob: Started file copy");
-                await destBlob.StartCopyFromUriAsync(srcBlob.Uri);
-                log.LogInformation("MoveBlob: Done file copy");
+
+                if (await destBlob.ExistsAsync())
+                {
+                    log.LogInformation("blob {0} already exist in destination, skipping copy operation", destBlob.Uri);
+
+                }
+                else
+                {
+                    log.LogInformation("MoveBlob: Copying blob to {0}", destBlob.Uri);
+
+                    using (var stream = await srcBlob.OpenReadAsync())
+                    {
+                        await destBlob.UploadAsync(stream);
+                    }
+                    log.LogInformation("MoveBlob: Done file copy");
+
+                }
+
                 await srcBlob.DeleteAsync();
                 log.LogInformation("MoveBlob: Source file deleted");
+
+            }
+            else
+            {
+                log.LogError("blob {0} doesn't exist in the source storage account ", srcBlob.Uri);
+                return;
             }
         }
     }

@@ -5,7 +5,7 @@
     {
       "type": "blobTrigger",
       "connection": "defsourcestoracc",
-      "path": "%targetContainerName%/{name}",
+      "path": "%sourceContainerName%/{name}",
       "name": "myBlob"
     }
   ],
