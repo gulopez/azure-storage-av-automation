@@ -438,22 +438,22 @@
                         "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), variables('targetStorageAccountSecretName'))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
                     ],
-                    "properties": {
-                        "AzureWebJobsStorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
-                        "cleanContainerName": "[parameters('cleanContainerName')]",
-                        "FUNCTIONS_EXTENSION_VERSION": "~3",
-                        "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
-                        "malwareContainerName": "[parameters('quarantineContainerName')]",
-                        "targetContainerName": "[parameters('NameOfTargetContainer')]",
-                        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
-                        "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
-                        "WEBSITE_NODE_DEFAULT_VERSION": "~10",
-                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
-                        "windowsdefender_host": "[reference(variables('vmNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
-                        "windowsdefender_port": "[variables('communicationPort')]",
-                        "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]"
-                    }
+                  "properties": {
+                    "AzureWebJobsStorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
+                    "cleanContainerName": "[parameters('cleanContainerName')]",
+                    "FUNCTIONS_EXTENSION_VERSION": "~3",
+                    "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
+                    "malwareContainerName": "[parameters('quarantineContainerName')]",
+                    "targetContainerName": "[parameters('NameOfTargetContainer')]",
+                    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
+                    "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+                    "WEBSITE_NODE_DEFAULT_VERSION": "~10",
+                    "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
+                    "windowsdefender_host": "[reference(variables('vmNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
+                    "windowsdefender_port": "[variables('communicationPort')]",
+                    "defsourcestoracc": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]",
+                    "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(parameters('addAppInsightsAndAlerts'), reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey, json('null'))]"
+                  }
                 }
             ]
         },

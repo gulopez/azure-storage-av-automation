@@ -4,7 +4,7 @@
   "bindings": [
     {
       "type": "blobTrigger",
-      "connection": "windefenderstorage",
+      "connection": "defsourcestoracc",
       "path": "%targetContainerName%/{name}",
       "name": "myBlob"
     }
