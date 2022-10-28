@@ -144,11 +144,18 @@
       "metadata": {
         "description": "SAS token expiration hours for azcopy to download each file."
       }
+    },
+    "ResourcesSuffix": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id, deployment().name)]",
+      "metadata": {
+        "description": "Suffix that is going to be appended to each resource."
+      }
     }
   },
   "variables": {
     "hostStorageAccountType": "Standard_LRS",
-    "uniqueStringSuffix": "[uniqueString(resourceGroup().id, deployment().name)]",
+    "uniqueStringSuffix": "[parameters('ResourcesSuffix')]",
     "appServicePlanName": "[concat('appplan', variables('uniqueStringSuffix'))]",
     "communicationPort": "443",
     "computerName": "AntivirusVm",
