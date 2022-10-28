@@ -96,15 +96,24 @@ namespace ScanHttpServer
                 Log.Information("AzCopy completed");
 
                 //Check File Sizes to make sure was copy correctly
-                FileInfo fi = new FileInfo(tempFileName);
-                long size = fi.Length;
+                //FileInfo fi = new FileInfo(tempFileName);
+                //long size = fi.Length;
+                try 
+                {
+                    long length = new System.IO.FileInfo(tempFileName).Length;
+                    Log.Information(string.Format("File size for {0}:{1}", tempFileName,length));
+                }
+                catch
+                {
+                    Log.Information(string.Format("Exception reading file size for {0}", tempFileName));
+                }
+                
 
-               
                 var scanner = new WindowsDefenderScanner();
                 Log.Information("Scanning file");
                 var result = scanner.Scan(tempFileName);
 
-                if (result.isError || size == 0)
+                if (result.isError )
                 {
                     Log.Error("Error during the scanning Error message:{errorMessage}", result.errorMessage);
 
