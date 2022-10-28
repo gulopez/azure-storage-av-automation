@@ -86,10 +86,11 @@ namespace ScanUploadedBlobFunction
                     }
                     log.LogInformation("MoveBlob: Done file copy");
 
-                }
+                    await srcBlob.DeleteAsync();
+                    log.LogInformation("MoveBlob: Source file deleted");
 
-                await srcBlob.DeleteAsync();
-                log.LogInformation("MoveBlob: Source file deleted");
+                }
+                
 
             }
             else
